@@ -15,7 +15,7 @@ void (*_get_code(char *inst, unsigned int line))(stack_t **, unsigned int)
 		{"nop", op_nop}, {"sub", op_sub}, {"mul", op_mul},
 		{"div", op_div}, {"mod", op_mod}, {NULL, NULL}
 	};
-	
+
 	int mv_list = 0;
 
 	while (ops[mv_list].opcode != NULL)
