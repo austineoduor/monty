@@ -39,6 +39,6 @@ Implement the add opcode.
 _**5. nop**_
 Implement the nop opcode.
 
-# File Author 
- Jeff Austine Ochieng
- Austine Oduor
+# File Authors 
+- Jeff Austine Ochieng
+- Austine Oduor
