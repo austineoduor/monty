@@ -1,61 +1,52 @@
 #include "monty.h"
-/**
- * main - Entry point
- * Desc: main function
- * @argc: argument count for monty program
- * @argv: one-dimensional array vector containing arguments
- * Return: Main receives arguments
- **/
-int main(int argc, char *argv[])
-{
-	if (argc > 2 || argc == 1)
-	{ fprintf(stderr, "USAGE: monty file\n");
-		exit(EXIT_FAILURE);
-	}
-	else if (argc == 2)
-	{
-		receive(argv[1]);
-	}
-	return (0);
-}
+
+stack_t *head = NULL;
 
 /**
- * receive - Entry
- * Desc: receive function
- * @file_name: pointer to char
- * Return: Reads if arguments, opens file, reads, and closes.
- **/
-int receive(char *file_name)
+  * main - The Monty Interpreter entry point
+  * @argn: The args number
+  * @args: The args passed to the interpreter
+  *
+  * Return: Always zero
+  */
+int main(int argn, char *args[])
 {
-	char *inst;
-	size_t bufsize = 1024;
-	stack_t *stack = NULL;
-	unsigned int line_count = 0;
-	void (*f)(stack_t **, unsigned int);
+	FILE *fd = NULL;
+	size_t line_len = 0;
+	unsigned int line_num = 1;
+	int readed = 0, op_status = 0;
+	char *filename = NULL, *op_code = NULL, *op_param = NULL, *buff = NULL;
 
-	yoyo.fd = fopen(file_name, "r");
-	if (yoyo.fd == NULL)
-	{	fprintf(stderr, "Error: Can't open file %s\n", file_name);
-		exit(EXIT_FAILURE);
-	}
-	else
+	filename = args[1];
+	check_args_num(argn);
+	fd = open_file(filename);
+
+	while ((readed = getline(&buff, &line_len, fd)) != -1)
 	{
-		while (getline(&(yoyo.buffer), &bufsize, yoyo.fd) != -1)
-		{	line_count++;
-			inst = strtok(yoyo.buffer, "\n\t\r ");
-			yoyo.meet = strtok(NULL, "\n\t\r ");
-			if (inst != NULL && inst[0] != '#')
-			{	f = _get_code(inst, line_count);
-				if (f != NULL)
-					f(&stack, line_count);
-				else
-				{	fprintf(stderr, "L%u: unknown instruction %s\n", line_count, inst);
-					free_space(&stack);
-					exit(EXIT_FAILURE);
-				}
+		op_code = strtok(buff, "\t\n ");
+		if (op_code)
+		{
+			if (op_code[0] == '#')
+			{
+				++line_num;
+				continue;
+			}
+
+			op_param = strtok(NULL, "\t\n ");
+			op_status = handle_execution(op_code, op_param, line_num, op_status);
+
+			if (op_status >= 100 && op_status < 300)
+			{
+				fclose(fd);
+				handle_error(op_status, op_code, line_num, buff);
 			}
 		}
+
+		++line_num;
 	}
-	free_space(&stack);
+
+	frees_stack();
+	free(buff);
+	fclose(fd);
 	return (0);
 }
